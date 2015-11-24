@@ -20,17 +20,23 @@ class ViewController: UIViewController {
         let delayTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(1.0 * Double(NSEC_PER_SEC)))
         dispatch_after(delayTime, dispatch_get_main_queue()) { () -> Void in
             
-            var path: String = NSBundle.mainBundle().pathForResource("ringing_voice", ofType: "mp3")!
-            var data: NSData = NSData(contentsOfFile: path)!
+            let path: String = NSBundle.mainBundle().pathForResource("ringing_voice", ofType: "mp3")!
+            let data: NSData = NSData(contentsOfFile: path)!
             
-            var playerError: NSError? = nil
-            var player: AVAudioPlayer = AVAudioPlayer(data: data, error: &playerError)
-            player.prepareToPlay()
-            player.play()
-            
-            self.audioPlayer = player
-            
-            self.onRouteToSpeaker(self)
+            var player: AVAudioPlayer
+            do {
+                player = try AVAudioPlayer(data: data)
+                player.prepareToPlay()
+                player.play()
+                
+                self.audioPlayer = player
+                
+                self.onRouteToSpeaker(self)
+            } catch let error as NSError {
+                print(error.description)
+            } catch {
+                fatalError()
+            }
         }
     }
 

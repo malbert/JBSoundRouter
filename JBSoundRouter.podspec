@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "JBSoundRouter"
-  s.version      = "1.0.2"
+  s.version      = "1.0.3"
   s.summary      = "Simple class for routing sounds to speaker / phone speaker. Made because to solve webRTC routing problems."
   s.homepage     = "https://github.com/josipbernat/JBSoundRouter"
   s.license      = { :type => "MIT", :file => "LICENSE" }
@@ -10,4 +10,5 @@ Pod::Spec.new do |s|
   s.source       	= { :git => "https://github.com/josipbernat/JBSoundRouter.git", :tag => "v1.0.2" }
   s.source_files  	= 'JBSoundRouter/JBSoundRouter/**/*.{h,m,swift}'
   s.requires_arc 	= true 
+  s.dependency 'SCLAlertView'
 end

@@ -33,7 +33,7 @@ enum JBSoundRoute: Int {
     
     class func isHeadsetPluggedIn() -> Bool {
         
-        var route: AVAudioSessionRouteDescription = AVAudioSession.sharedInstance().currentRoute
+        let route: AVAudioSessionRouteDescription = AVAudioSession.sharedInstance().currentRoute
         for port in route.outputs {
             
             let portDescription: AVAudioSessionPortDescription = port as AVAudioSessionPortDescription
@@ -71,7 +71,7 @@ enum JBSoundRoute: Int {
             queue: NSOperationQueue.mainQueue()) { (note) -> Void in
                 
                 let notification: NSNotification = note as NSNotification
-                var dict: Dictionary = notification.userInfo as Dictionary!
+                let dict: Dictionary = notification.userInfo as Dictionary!
                 self.JBLog(String(format: "AVAudioSessionRouteChangeNotification received. UserInfo: %@", dict))
                 
                 self.__handleSessionRouteChangeNotification(note)
@@ -82,7 +82,7 @@ enum JBSoundRoute: Int {
             queue: NSOperationQueue.mainQueue()) { (note) -> Void in
                 
                 let notification: NSNotification = note as NSNotification
-                var dict: Dictionary = notification.userInfo as Dictionary!
+                let dict: Dictionary = notification.userInfo as Dictionary!
                 self.JBLog(String(format: "AVAudioSessionInterruptionNotification received. UserInfo: %@", dict))
         }
     }
@@ -92,7 +92,7 @@ enum JBSoundRoute: Int {
         // Because userInfo is an optional we need to check it first.
         if let info = notification.userInfo {
             
-            var numberReason: NSNumber = info[AVAudioSessionRouteChangeReasonKey] as NSNumber
+            let numberReason: NSNumber = info[AVAudioSessionRouteChangeReasonKey] as! NSNumber
             if let reason = AVAudioSessionRouteChangeReason(rawValue: UInt(numberReason.integerValue)) {
                 
                 switch (reason) {
@@ -162,11 +162,11 @@ enum JBSoundRoute: Int {
             }
         }
         
-        var session: AVAudioSession = AVAudioSession.sharedInstance()
+        let session: AVAudioSession = AVAudioSession.sharedInstance()
         
         if let route: AVAudioSessionRouteDescription = session.currentRoute {
-            
-            if let outputs = route.outputs {
+            let outputs = route.outputs
+            if  outputs.count > 0 {
                 
                 for port in route.outputs {
                     
@@ -176,23 +176,35 @@ enum JBSoundRoute: Int {
                     if (self.currentRoute == JBSoundRoute.Receiver && portDescription.portType != AVAudioSessionPortBuiltInReceiver) {
                         
                         // Switch to Receiver
-                        var error: NSError? = nil
-                        session.overrideOutputAudioPort(AVAudioSessionPortOverride.None, error: &error)
+                        do {
+                            try session.overrideOutputAudioPort(AVAudioSessionPortOverride.None)
+                        } catch let error as NSError {
+                            print(error.description)
+                        }
                     }
                     else if (self.currentRoute == JBSoundRoute.Speaker && portDescription.portType != AVAudioSessionPortBuiltInSpeaker) {
                         
                         // Switch to Speaker
-                        var error: NSError? = nil
-                        session.overrideOutputAudioPort(AVAudioSessionPortOverride.Speaker, error: &error)
+                        do {
+                            try session.overrideOutputAudioPort(AVAudioSessionPortOverride.Speaker)
+                        } catch let error as NSError {
+                            print(error.description)
+                        }
                     }
                 }
             }
         }
         
-        session.setCategory(AVAudioSessionCategoryPlayAndRecord, error: nil)
+        do {
+            try session.setCategory(AVAudioSessionCategoryPlayAndRecord)
+        } catch _ {
+        }
         
-        var activeError: NSError? = nil
-        session.setActive(true, error: &activeError)
+        do {
+            try session.setActive(true)
+        } catch let error as NSError {
+            print(error.description)
+        }
     }
     
     //MARK: Logging
